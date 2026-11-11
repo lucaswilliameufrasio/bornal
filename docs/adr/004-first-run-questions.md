@@ -33,7 +33,7 @@ The search used by the question looks at a few known roots and at most four dire
 
 ## Consequences
 
-ADR-001 still holds: two UI languages, spell names from the client. The saved language is a new step in front of detection. ADR-003 still holds for writes and for skipping a full-disk scan. The search above is the exception, and only to fill the question.
+ADR-001 still holds: two UI languages, spell names from the client. The saved language is a new step in front of detection. ADR-005 finishes writes. A full-disk scan stays out. The search above is the exception, and only to fill the question.
 
 ## Review
 

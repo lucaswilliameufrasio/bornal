@@ -13,7 +13,35 @@ import (
 //go:embed console.html console.css
 var files embed.FS
 
-// Page is one overview render.
+// Link is one rail entry.
+type Link struct {
+	Href    string
+	Label   string
+	Current bool
+}
+
+// Row is one plain line on a page. Href, when set, is a same-origin link.
+type Row struct {
+	Name   string
+	Detail string
+	Href   string
+}
+
+// Form is one same-origin POST. The passphrase is typed by the browser and is not rendered back.
+type Form struct {
+	Kind     string
+	Action   string
+	CSRF     string
+	Confirm  string
+	Flavor   string
+	Account  int
+	Submit   string
+	Kit      string
+	Password bool
+	Twice    bool
+}
+
+// Page is one console render.
 type Page struct {
 	HTMLLang    string
 	Title       string
@@ -23,36 +51,63 @@ type Page struct {
 	Heading     string
 	Note        string
 	Empty       string
+	Message     string
 	LabelPath   string
 	LabelFlavor string
 	LabelLocale string
 	LabelAgent  string
 	Missing     string
 	Installs    []install.Install
+	Links       []Link
+	Rows        []Row
+	Forms       []Form
 	CSS         template.CSS
 }
 
-// NewPage fills the labels for lang. empty is shown when Installs is empty.
-func NewPage(lang i18n.Language, installs []install.Install, empty string) Page {
+// NewPage fills the overview. running is the game-open line.
+func NewPage(lang i18n.Language, installs []install.Install, empty, running string) Page {
+	page := basePage(lang, i18n.NavInstalls(lang), "/web/overview")
+	if running == "" {
+		running = i18n.RunningUnchecked(lang)
+	}
+	page.Note = i18n.LocaleNote(lang) + " " + running
+	page.Empty = empty
+	page.Installs = installs
+	return page
+}
+
+// Section starts a page that is not the overview.
+func Section(lang i18n.Language, title, href, note string) Page {
+	page := basePage(lang, title, href)
+	page.Note = note
+	return page
+}
+
+func basePage(lang i18n.Language, title, href string) Page {
 	htmlLang := "en"
 	if lang == i18n.Portuguese {
 		htmlLang = "pt-BR"
 	}
+	links := []Link{
+		{Href: "/web/overview", Label: i18n.NavInstalls(lang), Current: href == "/web/overview"},
+		{Href: "/web/macros", Label: i18n.NavMacros(lang), Current: href == "/web/macros"},
+		{Href: "/web/addons", Label: i18n.NavAddons(lang), Current: href == "/web/addons"},
+		{Href: "/web/kits", Label: i18n.NavKits(lang), Current: href == "/web/kits"},
+		{Href: "/web/rollback", Label: i18n.NavRollback(lang), Current: href == "/web/rollback"},
+	}
 	return Page{
 		HTMLLang:    htmlLang,
-		Title:       i18n.NavInstalls(lang),
+		Title:       title,
 		Subtitle:    i18n.BrandSubtitle(lang),
 		Nav:         i18n.NavInstalls(lang),
 		Mode:        i18n.ModeLocal(lang),
-		Heading:     i18n.NavInstalls(lang),
-		Note:        i18n.LocaleNote(lang) + " " + i18n.RunningUnchecked(lang),
-		Empty:       empty,
+		Heading:     title,
 		LabelPath:   i18n.LabelPath(lang),
 		LabelFlavor: i18n.LabelFlavor(lang),
 		LabelLocale: i18n.LabelLocale(lang),
 		LabelAgent:  i18n.LabelAgent(lang),
 		Missing:     i18n.LabelMissing(lang),
-		Installs:    installs,
+		Links:       links,
 	}
 }
 

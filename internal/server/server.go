@@ -1,5 +1,5 @@
-// Package server exposes the read-only configuration tools on stdio.
-// The process does not prompt. The agent asks the person, then calls save_configuration.
+// Package server exposes configuration and game tools on stdio.
+// The process does not prompt on this stream. A passphrase, when one is required, uses the local prompt in Deps.
 package server
 
 import (
@@ -23,6 +23,9 @@ type Deps struct {
 	Inspect        func(string) ([]install.Install, error)
 	Language       i18n.Language
 	LanguageLocked bool
+	Open           func(string) (bool, error)
+	Passphrase     func() ([]byte, error)
+	Volumes        func() []string
 }
 
 // Choice is one answer id the agent can send back.
@@ -91,6 +94,7 @@ func New(deps Deps, version string) *mcp.Server {
 		}
 		return nil, view, nil
 	})
+	addGameTools(srv, deps)
 	return srv
 }
 

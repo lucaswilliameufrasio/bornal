@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/lucaswilliameufrasio/bornal/internal/console"
 	"github.com/lucaswilliameufrasio/bornal/internal/i18n"
 	"github.com/lucaswilliameufrasio/bornal/internal/install"
 )
@@ -91,6 +92,82 @@ func TestRoutes(t *testing.T) {
 	}
 	if response := serve(func(r *http.Request) { r.URL.Path = "/web/outra" }); response.Code != http.StatusNotFound {
 		t.Fatalf("caminho desconhecido: status %d", response.Code)
+	}
+}
+
+func TestWritePagesKeepThePassphraseOffThePage(t *testing.T) {
+	const secret = "s3cret-value"
+	actions := &Actions{
+		CSRF: "csrf-token",
+		Get: func(page, flavor string, account int, replace bool) (console.Page, error) {
+			out := console.Section(i18n.English, "Macros", "/web/macros", "note")
+			out.Forms = []console.Form{{
+				Kind: "apply", Action: "/web/macros", Submit: "Write macros", Password: true,
+			}}
+			return out, nil
+		},
+		Post: func(page string, form Form) (console.Page, error) {
+			if page != "macros" || string(form.Passphrase) != secret || form.Kind != "apply" {
+				t.Fatalf("form %+v", form.Kind)
+			}
+			out := console.Section(i18n.English, "Macros", "/web/macros", "note")
+			out.Message = "wrote"
+			return out, nil
+		},
+	}
+	handler := route(view, testHost, actions)
+
+	overview := httptest.NewRequest(http.MethodGet, "http://"+testHost+"/web/overview", nil)
+	overview.RemoteAddr = "127.0.0.1:50000"
+	overviewRec := httptest.NewRecorder()
+	handler.ServeHTTP(overviewRec, overview)
+	if !strings.Contains(overviewRec.Header().Get("Content-Security-Policy"), "form-action 'none'") {
+		t.Fatal("visão geral sem form-action none")
+	}
+	posted := httptest.NewRequest(http.MethodPost, "http://"+testHost+"/web/overview", strings.NewReader("csrf=csrf-token"))
+	posted.RemoteAddr = "127.0.0.1:50000"
+	posted.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	postedRec := httptest.NewRecorder()
+	handler.ServeHTTP(postedRec, posted)
+	if postedRec.Code != http.StatusMethodNotAllowed {
+		t.Fatalf("visão geral POST %d", postedRec.Code)
+	}
+
+	macros := httptest.NewRequest(http.MethodGet, "http://"+testHost+"/web/macros", nil)
+	macros.RemoteAddr = "127.0.0.1:50000"
+	macrosRec := httptest.NewRecorder()
+	handler.ServeHTTP(macrosRec, macros)
+	policy := macrosRec.Header().Get("Content-Security-Policy")
+	if !strings.Contains(policy, "form-action 'self'") || strings.Contains(policy, "form-action 'none'") {
+		t.Fatalf("csp %s", policy)
+	}
+
+	query := httptest.NewRequest(http.MethodPost, "http://"+testHost+"/web/macros?x=1", strings.NewReader("csrf=csrf-token"))
+	query.RemoteAddr = "127.0.0.1:50000"
+	query.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	queryRec := httptest.NewRecorder()
+	handler.ServeHTTP(queryRec, query)
+	if queryRec.Code != http.StatusBadRequest {
+		t.Fatalf("query %d", queryRec.Code)
+	}
+
+	bad := httptest.NewRequest(http.MethodPost, "http://"+testHost+"/web/macros", strings.NewReader("csrf=nope&passphrase="+secret))
+	bad.RemoteAddr = "127.0.0.1:50000"
+	bad.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	badRec := httptest.NewRecorder()
+	handler.ServeHTTP(badRec, bad)
+	if badRec.Code != http.StatusForbidden || strings.Contains(badRec.Body.String(), secret) {
+		t.Fatalf("csrf %d %s", badRec.Code, badRec.Body.String())
+	}
+
+	body := "csrf=csrf-token&kind=apply&passphrase=" + secret
+	good := httptest.NewRequest(http.MethodPost, "http://"+testHost+"/web/macros", strings.NewReader(body))
+	good.RemoteAddr = "127.0.0.1:50000"
+	good.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	goodRec := httptest.NewRecorder()
+	handler.ServeHTTP(goodRec, good)
+	if goodRec.Code != http.StatusOK || !strings.Contains(goodRec.Body.String(), "wrote") || strings.Contains(goodRec.Body.String(), secret) {
+		t.Fatalf("post %d %s", goodRec.Code, goodRec.Body.String())
 	}
 }
 

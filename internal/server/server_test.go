@@ -31,10 +31,12 @@ func testDeps(t *testing.T, flavor string) (Deps, func(string) string) {
 	t.Helper()
 	home := t.TempDir()
 	getenv := func(key string) string {
-		if key == "XDG_CONFIG_HOME" {
+		switch key {
+		case "XDG_CONFIG_HOME", "XDG_STATE_HOME", "HOME":
 			return home
+		default:
+			return ""
 		}
-		return ""
 	}
 	deps := Deps{
 		Getenv:   getenv,
@@ -42,8 +44,11 @@ func testDeps(t *testing.T, flavor string) (Deps, func(string) string) {
 		Discover: func([]string) []install.Install {
 			return []install.Install{{Path: flavor, Flavor: "_forever_", Locale: "enUS"}}
 		},
-		Roots:   func(func(string) string) []string { return nil },
-		Inspect: install.Inspect,
+		Roots:      func(func(string) string) []string { return nil },
+		Inspect:    install.Inspect,
+		Open:       func(string) (bool, error) { return false, nil },
+		Volumes:    func() []string { return nil },
+		Passphrase: func() ([]byte, error) { return []byte("test-secret"), nil },
 	}
 	return deps, getenv
 }

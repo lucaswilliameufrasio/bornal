@@ -67,6 +67,14 @@ Uso:
   bornal doctor [--path DIR] [--lang pt-BR|en]
   bornal console [--path DIR] [--lang pt-BR|en]
   bornal mcp [--lang pt-BR|en]
+  bornal macros preview [--path DIR] [--flavor NAME] [--account N] [--replace]
+  bornal macros apply --confirm TOKEN
+  bornal addons [--path DIR] [--flavor NAME]
+  bornal kit create [--path DIR] [--flavor NAME] [--account N] [--out DIR] [--label TEXT] [--encrypt]
+  bornal kit find [DIR]
+  bornal kit verify PATH
+  bornal kit restore PATH [--confirm TOKEN] [--replace] [--realm-ok]
+  bornal rollback [--confirm TOKEN] [--path DIR] [--flavor NAME] [--account N]
   bornal help
   bornal version
 
@@ -74,7 +82,8 @@ Uso:
 O caminho segue --path, depois BORNAL_WOW_PATH, depois o config salvo.
 No terminal, doctor e console perguntam quando não há caminho.
 bornal mcp não pergunta neste fluxo. A ferramenta configuration devolve as perguntas.
-Este corte só lê.
+A macro e o restore gravam só com o jogo fechado e com o token desta prévia.
+A senha de um kit cifrado não entra em flag, argumento nem URL.
 `,
 		`bornal — reads local World of Warcraft installations
 
@@ -83,6 +92,14 @@ Usage:
   bornal doctor [--path DIR] [--lang pt-BR|en]
   bornal console [--path DIR] [--lang pt-BR|en]
   bornal mcp [--lang pt-BR|en]
+  bornal macros preview [--path DIR] [--flavor NAME] [--account N] [--replace]
+  bornal macros apply --confirm TOKEN
+  bornal addons [--path DIR] [--flavor NAME]
+  bornal kit create [--path DIR] [--flavor NAME] [--account N] [--out DIR] [--label TEXT] [--encrypt]
+  bornal kit find [DIR]
+  bornal kit verify PATH
+  bornal kit restore PATH [--confirm TOKEN] [--replace] [--realm-ok]
+  bornal rollback [--confirm TOKEN] [--path DIR] [--flavor NAME] [--account N]
   bornal help
   bornal version
 
@@ -90,7 +107,8 @@ Usage:
 The path follows --path, then BORNAL_WOW_PATH, then the saved config.
 On a terminal, doctor and console ask when no path is known.
 bornal mcp does not prompt on this stream. The configuration tool returns the questions.
-This slice only reads.
+Macros and restore write only while the game is closed, and only with that preview's token.
+An encrypted kit passphrase is not a flag, an argument, or a URL.
 `)
 }
 
@@ -123,11 +141,19 @@ func ReadFailed(lang Language) string {
 	return text(lang, "Não consegui ler o caminho.", "Could not read the path.")
 }
 
-// RunningUnchecked says this slice does not look at Wow.exe.
+// RunningUnchecked is used when the process scan cannot run.
 func RunningUnchecked(lang Language) string {
-	return text(lang,
-		"Jogo aberto: não verificado neste corte.",
-		"Game running: not checked in this slice.")
+	return text(lang, "Jogo aberto: não verificado", "Game running: not checked")
+}
+
+// RunningYes reports that Wow.exe for this install is open.
+func RunningYes(lang Language) string {
+	return text(lang, "Jogo aberto: sim", "Game running: yes")
+}
+
+// RunningNo reports that Wow.exe for this install is closed.
+func RunningNo(lang Language) string {
+	return text(lang, "Jogo aberto: não", "Game running: no")
 }
 
 // LocaleNote tells the reader that UI language and client locale differ on purpose.
@@ -224,4 +250,106 @@ func SetupFailed(lang Language) string {
 // ConfigFailed hides the filesystem error behind the config file.
 func ConfigFailed(lang Language) string {
 	return text(lang, "Não consegui gravar a configuração.", "Could not write the configuration.")
+}
+
+// NavMacros is the macro page.
+func NavMacros(lang Language) string { return text(lang, "Macros", "Macros") }
+
+// NavAddons is the addon page.
+func NavAddons(lang Language) string { return text(lang, "Addons", "Addons") }
+
+// NavKits is the kit page.
+func NavKits(lang Language) string { return text(lang, "Kits", "Kits") }
+
+// NavRollback is the rollback page.
+func NavRollback(lang Language) string { return text(lang, "Rollback", "Rollback") }
+
+// NeedAccount asks for --account when several account folders exist.
+func NeedAccount(lang Language) string {
+	return text(lang, "Escolha a conta com --account N.", "Choose the account with --account N.")
+}
+
+// NeedFlavor asks for --flavor when several installs exist.
+func NeedFlavor(lang Language) string {
+	return text(lang, "Escolha o flavor com --flavor.", "Choose the flavor with --flavor.")
+}
+
+// MacroLocale refuses the English set on another client locale.
+func MacroLocale(lang Language) string {
+	return text(lang,
+		"O conjunto em inglês não entra neste locale. A prévia mostra o texto, sem gravar.",
+		"The English set is not applied on this locale. The preview shows the text and does not write.")
+}
+
+// MacroConflict asks for a new preview with --replace.
+func MacroConflict(lang Language) string {
+	return text(lang,
+		"Uma macro com o mesmo nome tem outro texto. Rode de novo com --replace para trocar.",
+		"A macro with the same name has different text. Preview again with --replace to change it.")
+}
+
+// MacroWrote confirms the cache was replaced.
+func MacroWrote(lang Language) string {
+	return text(lang, "Macros gravadas. O backup é macros-cache.bornal-bak.", "Macros written. The backup is macros-cache.bornal-bak.")
+}
+
+// MacroReady prints the confirm token label.
+func MacroReady(lang Language) string {
+	return text(lang, "confirm", "confirm")
+}
+
+// KitWrote confirms a kit path.
+func KitWrote(lang Language) string {
+	return text(lang, "Kit gravado.", "Kit written.")
+}
+
+// KitPass says the passphrase did not open the kit.
+func KitPass(lang Language) string {
+	return text(lang, "A senha não confere. Nada foi gravado.", "The passphrase does not match. Nothing was written.")
+}
+
+// KitNeedPass asks for a passphrase without accepting it as a flag.
+func KitNeedPass(lang Language) string {
+	return text(lang, "Este kit é cifrado. A senha é pedida no terminal ou no console.", "This kit is encrypted. The passphrase is asked in the terminal or the console.")
+}
+
+// UseConsole tells an MCP client where a passphrase can be typed.
+func UseConsole(lang Language) string {
+	return text(lang, "Sem prompt local. Use bornal console para cifrar.", "No local prompt. Use bornal console to encrypt.")
+}
+
+// Restored confirms a kit restore.
+func Restored(lang Language) string {
+	return text(lang, "Kit restaurado.", "Kit restored.")
+}
+
+// RolledBack confirms a macro rollback.
+func RolledBack(lang Language) string {
+	return text(lang, "Backup das macros restaurado.", "Macro backup restored.")
+}
+
+// SubmitApply is a console button.
+func SubmitApply(lang Language) string { return text(lang, "Gravar macros", "Write macros") }
+
+// SubmitKit is a console button.
+func SubmitKit(lang Language) string { return text(lang, "Criar kit", "Create kit") }
+
+// SubmitRestore is a console button.
+func SubmitRestore(lang Language) string {
+	return text(lang, "Restaurar kit", "Restore kit")
+}
+
+// SubmitRollback is a console button.
+func SubmitRollback(lang Language) string {
+	return text(lang, "Restaurar backup", "Restore backup")
+}
+
+// SubmitVerify is a console button.
+func SubmitVerify(lang Language) string {
+	return text(lang, "Conferir kit", "Check kit")
+}
+
+// NeedConfirm asks for a token from the same side.
+func NeedConfirm(lang Language) string {
+	return text(lang, "Rode a prévia e use o confirm desta mesma via.", "Run the preview and pass confirm from this same side.")
 }

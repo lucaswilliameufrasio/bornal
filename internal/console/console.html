@@ -10,13 +10,43 @@
   <div class="shell">
     <aside class="rail">
       <p class="brand">bornal<small>{{.Subtitle}}</small></p>
-      <a href="/web/overview" aria-current="page">{{.Nav}}</a>
+      <nav>
+      {{range .Links}}<a href="{{.Href}}"{{if .Current}} aria-current="page"{{end}}>{{.Label}}</a>{{end}}
+      </nav>
       <p class="mode">{{.Mode}}</p>
     </aside>
     <main class="main">
       <h1>{{.Heading}}</h1>
       <p class="note">{{.Note}}</p>
+      {{if .Message}}<p class="card">{{.Message}}</p>{{end}}
       {{if .Empty}}<p class="card">{{.Empty}}</p>{{end}}
+      {{range .Rows}}<article class="card">{{if .Href}}<h2><a href="{{.Href}}">{{.Name}}</a></h2>{{else}}<h2>{{.Name}}</h2>{{end}}{{if .Detail}}<p>{{.Detail}}</p>{{end}}</article>{{end}}
+      {{range .Forms}}
+      <form method="post" action="{{.Action}}">
+        <input type="hidden" name="csrf" value="{{.CSRF}}">
+        <input type="hidden" name="kind" value="{{.Kind}}">
+        {{if .Confirm}}<input type="hidden" name="confirm" value="{{.Confirm}}">{{end}}
+        {{if .Flavor}}<input type="hidden" name="flavor" value="{{.Flavor}}">{{end}}
+        {{if .Account}}<input type="hidden" name="account" value="{{.Account}}">{{end}}
+        {{if eq .Kind "create"}}
+        <label>label <input name="label" autocomplete="off"></label>
+        <label>out <input name="out" autocomplete="off"></label>
+        <label><input type="checkbox" name="encrypt" value="1"> encrypt</label>
+        {{end}}
+        {{if or (eq .Kind "restore") (eq .Kind "verify")}}
+        <label>kit <input name="kit" value="{{.Kit}}" autocomplete="off"></label>
+        {{end}}
+        {{if eq .Kind "restore"}}
+        <label><input type="checkbox" name="replace" value="1"> replace</label>
+        <label><input type="checkbox" name="realm_ok" value="1"> realm</label>
+        {{end}}
+        {{if .Password}}
+        <label>passphrase <input type="password" name="passphrase" autocomplete="off"></label>
+        {{if .Twice}}<label>passphrase <input type="password" name="passphrase2" autocomplete="off"></label>{{end}}
+        {{end}}
+        <button type="submit">{{.Submit}}</button>
+      </form>
+      {{end}}
       {{range .Installs}}
       <article class="card">
         <dl>

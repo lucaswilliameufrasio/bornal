@@ -9,7 +9,16 @@ import (
 
 	"github.com/lucaswilliameufrasio/bornal/internal/config"
 	"github.com/lucaswilliameufrasio/bornal/internal/install"
+	"github.com/lucaswilliameufrasio/bornal/internal/pass"
+	"github.com/lucaswilliameufrasio/bornal/internal/running"
 )
+
+func TestMain(m *testing.M) {
+	processList = func() ([]running.Process, error) { return nil, nil }
+	volumeRoots = func() []string { return nil }
+	askSecret = func(string) ([]byte, error) { return nil, pass.ErrNoPrompt }
+	os.Exit(m.Run())
+}
 
 func envNone(string) string { return "" }
 
@@ -128,10 +137,13 @@ func TestDoctorReadsAFixture(t *testing.T) {
 	if code != 0 {
 		t.Fatalf("code %d %s", code, errText)
 	}
-	for _, want := range []string{"_forever_", "enUS", "wowf", "not checked"} {
+	for _, want := range []string{"_forever_", "enUS", "wowf", "Game running: no"} {
 		if !strings.Contains(out, want) {
 			t.Fatalf("ausente %s em %s", want, out)
 		}
+	}
+	if strings.Contains(out, "not checked") {
+		t.Fatalf("varredura ok saiu como não verificada: %s", out)
 	}
 }
 
@@ -228,7 +240,7 @@ func TestDoctorAsksOnATerminal(t *testing.T) {
 	if code != 0 {
 		t.Fatalf("code %d %s", code, errText)
 	}
-	if !strings.Contains(out, "não verificado") || !strings.Contains(out, flavor) {
+	if strings.Contains(out, "não verificado") || !strings.Contains(out, "Jogo aberto: não") || !strings.Contains(out, flavor) {
 		t.Fatalf("saída: %s", out)
 	}
 	stored, err := config.Load(getenv)

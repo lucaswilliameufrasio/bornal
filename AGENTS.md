@@ -1,9 +1,9 @@
 # bornal
 
-Cliente local de instalações do World of Warcraft. Este corte lê o cliente e
-grava só a configuração local: idioma da interface e caminho da instalação.
-Macro, kit e restore ainda não existem. Decisões em `docs/adr/`. A interface
-visual segue `docs/design-system.md`.
+Cliente local de instalações do World of Warcraft. Lê o cliente, grava macros
+e restaura um wow-kit só com o Wow.exe daquela instalação fechado, e guarda na
+configuração só o idioma da interface e o caminho da instalação. Não há armory.
+Decisões em `docs/adr/`. A interface visual segue `docs/design-system.md`.
 
 O texto do programa sai em português do Brasil ou inglês, pela regra de
 `internal/i18n`. O nome de habilidade, quando existir, vem do `textLocale` do

@@ -18,6 +18,7 @@ type Install struct {
 	Flavor   string
 	Locale   string
 	AgentUID string
+	Build    string
 }
 
 // Inspect lists flavor directories under root. root itself counts when it
@@ -93,6 +94,8 @@ func readFlavor(dir string) (Install, bool, error) {
 			install.Locale = value
 		case "agentuid":
 			install.AgentUID = value
+		case "enginesurveypatch":
+			install.Build = value
 		}
 	}
 	if err := scanner.Err(); err != nil {

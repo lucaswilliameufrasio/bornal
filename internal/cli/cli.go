@@ -66,6 +66,14 @@ func Run(args []string, in io.Reader, stdout, stderr io.Writer, getenv func(stri
 		return console(rest[1:], in, stdout, stderr, lang, chosen != nil, getenv, interactive, saved)
 	case "mcp":
 		return mcpCommand(rest[1:], stderr, lang, chosen != nil, getenv)
+	case "macros":
+		return macrosCommand(rest[1:], in, stdout, stderr, lang, chosen != nil, getenv, interactive, saved)
+	case "addons":
+		return addonsCommand(rest[1:], in, stdout, stderr, lang, chosen != nil, getenv, interactive, saved)
+	case "kit":
+		return kitCommand(rest[1:], in, stdout, stderr, lang, chosen != nil, getenv, interactive, saved)
+	case "rollback":
+		return rollbackCommand(rest[1:], in, stdout, stderr, lang, chosen != nil, getenv, interactive, saved)
 	default:
 		fmt.Fprintf(stderr, "bornal: %s\n\n%s", i18n.UnknownCommand(lang, rest[0]), i18n.Usage(lang))
 		return 2
@@ -163,9 +171,8 @@ func doctor(args []string, in io.Reader, stdout, stderr io.Writer, lang i18n.Lan
 		if agent == "" {
 			agent = i18n.LabelMissing(lang)
 		}
-		fmt.Fprintf(stdout, "%s\n  %s: %s\n  %s: %s\n  %s: %s\n", one.Path, i18n.LabelFlavor(lang), one.Flavor, i18n.LabelLocale(lang), locale, i18n.LabelAgent(lang), agent)
+		fmt.Fprintf(stdout, "%s\n  %s: %s\n  %s: %s\n  %s: %s\n%s\n", one.Path, i18n.LabelFlavor(lang), one.Flavor, i18n.LabelLocale(lang), locale, i18n.LabelAgent(lang), agent, runningLine(lang, one.Path))
 	}
-	fmt.Fprintln(stdout, i18n.RunningUnchecked(lang))
 	return 0
 }
 
@@ -174,6 +181,7 @@ func console(args []string, in io.Reader, stdout, stderr io.Writer, lang i18n.La
 	if code != 0 {
 		return code
 	}
+	actions := consoleActions(path, lang, getenv)
 	web, err := localconsole.Start(func() localconsole.View {
 		found, message, code := report(path, lang)
 		empty := ""
@@ -181,8 +189,12 @@ func console(args []string, in io.Reader, stdout, stderr io.Writer, lang i18n.La
 			empty = message
 			found = nil
 		}
-		return localconsole.View{Language: lang, Installs: found, Empty: empty}
-	}, func(serveErr error) {
+		running := ""
+		if len(found) > 0 {
+			running = runningLine(lang, found[0].Path)
+		}
+		return localconsole.View{Language: lang, Installs: found, Empty: empty, Running: running}
+	}, actions, func(serveErr error) {
 		fmt.Fprintf(stderr, "bornal: %v\n", serveErr)
 	})
 	if err != nil {
@@ -229,6 +241,11 @@ func mcpCommand(args []string, stderr io.Writer, lang i18n.Language, langLocked 
 		Inspect:        install.Inspect,
 		Language:       lang,
 		LanguageLocked: langLocked,
+		Open:           gameOpen,
+		Volumes:        volumeRoots,
+		Passphrase: func() ([]byte, error) {
+			return askSecret("passphrase:")
+		},
 	}, Version)
 	if err != nil && !errors.Is(err, context.Canceled) {
 		fmt.Fprintf(stderr, "bornal: %s\n", i18n.ReadFailed(lang))
