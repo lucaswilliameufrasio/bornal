@@ -42,12 +42,13 @@ func TestOverviewRendersTheInstall(t *testing.T) {
 		t.Fatalf("status %d", response.Code)
 	}
 	body := response.Body.String()
-	for _, want := range []string{"<html lang=\"pt-BR\">", "<h1>Instalações</h1>", "_forever_", "enUS", "wowf"} {
+	for _, want := range []string{"<html lang=\"pt-BR\">", "<h1>_forever_</h1>", "enUS", "wowf", "Para gravar", "data:font/woff2"} {
 		if !strings.Contains(body, want) {
 			t.Fatalf("ausente: %s", want)
 		}
 	}
-	if response.Header().Get("Cache-Control") != "no-store" || !strings.Contains(response.Header().Get("Content-Security-Policy"), "default-src 'none'") {
+	policy := response.Header().Get("Content-Security-Policy")
+	if response.Header().Get("Cache-Control") != "no-store" || !strings.Contains(policy, "default-src 'none'") || !strings.Contains(policy, "font-src data:") {
 		t.Fatal("cabeçalhos de proteção ausentes")
 	}
 }
@@ -60,7 +61,7 @@ func TestEnglishPage(t *testing.T) {
 		return View{Language: i18n.English, Empty: "No installation at that path."}
 	}, testHost).ServeHTTP(recorder, request)
 	body := recorder.Body.String()
-	if !strings.Contains(body, `lang="en"`) || !strings.Contains(body, "<h1>Installs</h1>") {
+	if !strings.Contains(body, `lang="en"`) || !strings.Contains(body, "<h1>Installs</h1>") || !strings.Contains(body, "To write") {
 		t.Fatalf("página: %s", body)
 	}
 }

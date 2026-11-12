@@ -173,12 +173,12 @@ func BrandSubtitle(lang Language) string {
 	return text(lang, "instalações locais", "local installs")
 }
 
-// NavInstalls is the only page in this slice.
+// NavInstalls is the overview label.
 func NavInstalls(lang Language) string {
 	return text(lang, "Instalações", "Installs")
 }
 
-// ModeLocal is the rail footer.
+// ModeLocal is the bar note that the console stays on this machine.
 func ModeLocal(lang Language) string {
 	return text(lang, "Modo local", "Local mode")
 }
@@ -195,6 +195,58 @@ func LabelAgent(lang Language) string { return text(lang, "agentUID", "agentUID"
 func LabelMissing(lang Language) string {
 	return text(lang, "ausente", "missing")
 }
+
+// RunningLabel is the metric name for whether Wow.exe is open.
+func RunningLabel(lang Language) string {
+	return text(lang, "Jogo aberto", "Game running")
+}
+
+// RunningStateNo is the metric value when that install is closed.
+func RunningStateNo(lang Language) string { return text(lang, "não", "no") }
+
+// RunningStateYes is the metric value when that install is open.
+func RunningStateYes(lang Language) string { return text(lang, "sim", "yes") }
+
+// RunningStateUnchecked is the metric value when the process scan cannot run.
+func RunningStateUnchecked(lang Language) string {
+	return text(lang, "não verificado", "not checked")
+}
+
+// FlowTitle introduces the three write steps on the overview.
+func FlowTitle(lang Language) string { return text(lang, "Para gravar", "To write") }
+
+// FlowPreview is the first write step.
+func FlowPreview(lang Language) string { return text(lang, "Prévia", "Preview") }
+
+// FlowPreviewDetail says what the preview does.
+func FlowPreviewDetail(lang Language) string {
+	return text(lang, "lista o que muda", "lists what changes")
+}
+
+// FlowToken is the second write step.
+func FlowToken(lang Language) string { return text(lang, "Token", "Token") }
+
+// FlowTokenDetail says the token is single-use and side-specific.
+func FlowTokenDetail(lang Language) string {
+	return text(lang, "vale uma vez, neste lado", "once, on this side")
+}
+
+// FlowWrite is the third write step.
+func FlowWrite(lang Language) string { return text(lang, "Gravar", "Write") }
+
+// FlowWriteDetail says a write needs the game closed.
+func FlowWriteDetail(lang Language) string {
+	return text(lang, "só com o jogo fechado", "only while the game is closed")
+}
+
+// Field labels on the console forms.
+func FieldLabel(lang Language) string   { return text(lang, "Rótulo", "Label") }
+func FieldOut(lang Language) string     { return text(lang, "Destino", "Destination") }
+func FieldEncrypt(lang Language) string { return text(lang, "Cifrar", "Encrypt") }
+func FieldKit(lang Language) string     { return text(lang, "Kit", "Kit") }
+func FieldReplace(lang Language) string { return text(lang, "Substituir", "Replace") }
+func FieldRealm(lang Language) string   { return text(lang, "Reino", "Realm") }
+func FieldPass(lang Language) string    { return text(lang, "Senha", "Passphrase") }
 
 // LanguageQuestion is bilingual because the language is not chosen yet.
 func LanguageQuestion() string {

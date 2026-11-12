@@ -7,57 +7,94 @@
   <style>{{.CSS}}</style>
 </head>
 <body>
-  <div class="shell">
-    <aside class="rail">
-      <p class="brand">bornal<small>{{.Subtitle}}</small></p>
-      <nav>
-      {{range .Links}}<a href="{{.Href}}"{{if .Current}} aria-current="page"{{end}}>{{.Label}}</a>{{end}}
-      </nav>
-      <p class="mode">{{.Mode}}</p>
-    </aside>
-    <main class="main">
-      <h1>{{.Heading}}</h1>
-      <p class="note">{{.Note}}</p>
-      {{if .Message}}<p class="card">{{.Message}}</p>{{end}}
-      {{if .Empty}}<p class="card">{{.Empty}}</p>{{end}}
-      {{range .Rows}}<article class="card">{{if .Href}}<h2><a href="{{.Href}}">{{.Name}}</a></h2>{{else}}<h2>{{.Name}}</h2>{{end}}{{if .Detail}}<p>{{.Detail}}</p>{{end}}</article>{{end}}
-      {{range .Forms}}
-      <form method="post" action="{{.Action}}">
-        <input type="hidden" name="csrf" value="{{.CSRF}}">
-        <input type="hidden" name="kind" value="{{.Kind}}">
-        {{if .Confirm}}<input type="hidden" name="confirm" value="{{.Confirm}}">{{end}}
-        {{if .Flavor}}<input type="hidden" name="flavor" value="{{.Flavor}}">{{end}}
-        {{if .Account}}<input type="hidden" name="account" value="{{.Account}}">{{end}}
-        {{if eq .Kind "create"}}
-        <label>label <input name="label" autocomplete="off"></label>
-        <label>out <input name="out" autocomplete="off"></label>
-        <label><input type="checkbox" name="encrypt" value="1"> encrypt</label>
-        {{end}}
-        {{if or (eq .Kind "restore") (eq .Kind "verify")}}
-        <label>kit <input name="kit" value="{{.Kit}}" autocomplete="off"></label>
-        {{end}}
-        {{if eq .Kind "restore"}}
-        <label><input type="checkbox" name="replace" value="1"> replace</label>
-        <label><input type="checkbox" name="realm_ok" value="1"> realm</label>
-        {{end}}
-        {{if .Password}}
-        <label>passphrase <input type="password" name="passphrase" autocomplete="off"></label>
-        {{if .Twice}}<label>passphrase <input type="password" name="passphrase2" autocomplete="off"></label>{{end}}
-        {{end}}
-        <button type="submit">{{.Submit}}</button>
-      </form>
-      {{end}}
-      {{range .Installs}}
-      <article class="card">
-        <dl>
-          <dt>{{$.LabelPath}}</dt><dd>{{.Path}}</dd>
-          <dt>{{$.LabelFlavor}}</dt><dd>{{.Flavor}}</dd>
-          <dt>{{$.LabelLocale}}</dt><dd>{{if .Locale}}{{.Locale}}{{else}}{{$.Missing}}{{end}}</dd>
-          <dt>{{$.LabelAgent}}</dt><dd>{{if .AgentUID}}{{.AgentUID}}{{else}}{{$.Missing}}{{end}}</dd>
-        </dl>
+  <header class="top">
+    <p class="mark">bornal</p>
+    <nav>
+    {{range .Links}}<a href="{{.Href}}"{{if .Current}} aria-current="page"{{end}}>{{.Label}}</a>{{end}}
+    </nav>
+    <p class="mode">{{.Mode}}</p>
+  </header>
+  <main>
+    {{if and .ShowFlow (eq (len .Installs) 1)}}
+    {{with index .Installs 0}}
+    <p class="kicker">{{$.Subtitle}}</p>
+    <h1>{{.Flavor}}</h1>
+    <p class="path">{{.Path}}</p>
+    <section class="metrics">
+      <article>
+        <p>{{$.LabelLocale}}</p>
+        <strong>{{if .Locale}}{{.Locale}}{{else}}{{$.Missing}}{{end}}</strong>
       </article>
+      <article>
+        <p>{{$.GameLabel}}</p>
+        <strong class="safe">{{if $.GameSafe}}<i class="dot" aria-hidden="true"></i>{{end}}{{$.GameValue}}</strong>
+      </article>
+      <article>
+        <p>{{$.LabelAgent}}</p>
+        <strong>{{if .AgentUID}}{{.AgentUID}}{{else}}{{$.Missing}}{{end}}</strong>
+      </article>
+    </section>
+    {{end}}
+    {{else}}
+    {{if .ShowFlow}}<p class="kicker">{{.Subtitle}}</p>{{end}}
+    <h1>{{.Heading}}</h1>
+    {{if and .ShowFlow .GameValue}}
+    <section class="metrics one">
+      <article>
+        <p>{{.GameLabel}}</p>
+        <strong class="safe">{{if .GameSafe}}<i class="dot" aria-hidden="true"></i>{{end}}{{.GameValue}}</strong>
+      </article>
+    </section>
+    {{end}}
+    {{range .Installs}}
+    <article class="panel">
+      <h2>{{.Flavor}}</h2>
+      <p class="path">{{.Path}}</p>
+      <dl>
+        <dt>{{$.LabelLocale}}</dt><dd>{{if .Locale}}{{.Locale}}{{else}}{{$.Missing}}{{end}}</dd>
+        <dt>{{$.LabelAgent}}</dt><dd>{{if .AgentUID}}{{.AgentUID}}{{else}}{{$.Missing}}{{end}}</dd>
+      </dl>
+    </article>
+    {{end}}
+    {{end}}
+    {{if .ShowFlow}}
+    <section class="flow">
+      <h2>{{.FlowTitle}}</h2>
+      <ol>
+      {{range .Steps}}<li><span>{{.Index}}</span><strong>{{.Title}}</strong><em>{{.Detail}}</em></li>{{end}}
+      </ol>
+    </section>
+    {{end}}
+    {{if .Note}}<p class="note">{{.Note}}</p>{{end}}
+    {{if .Message}}<p class="message">{{.Message}}</p>{{end}}
+    {{if .Empty}}<p class="message">{{.Empty}}</p>{{end}}
+    {{if .Rows}}<div class="list">{{range .Rows}}<article>{{if .Href}}<h2><a href="{{.Href}}">{{.Name}}</a></h2>{{else}}<h2>{{.Name}}</h2>{{end}}{{if .Detail}}<p>{{.Detail}}</p>{{end}}</article>{{end}}</div>{{end}}
+    {{range .Forms}}
+    <form class="panel" method="post" action="{{.Action}}">
+      <input type="hidden" name="csrf" value="{{.CSRF}}">
+      <input type="hidden" name="kind" value="{{.Kind}}">
+      {{if .Confirm}}<input type="hidden" name="confirm" value="{{.Confirm}}">{{end}}
+      {{if .Flavor}}<input type="hidden" name="flavor" value="{{.Flavor}}">{{end}}
+      {{if .Account}}<input type="hidden" name="account" value="{{.Account}}">{{end}}
+      {{if eq .Kind "create"}}
+      <label>{{$.FieldLabel}} <input name="label" autocomplete="off"></label>
+      <label>{{$.FieldOut}} <input name="out" autocomplete="off"></label>
+      <label class="choice"><input type="checkbox" name="encrypt" value="1"> {{$.FieldEncrypt}}</label>
       {{end}}
-    </main>
-  </div>
+      {{if or (eq .Kind "restore") (eq .Kind "verify")}}
+      <label>{{$.FieldKit}} <input name="kit" value="{{.Kit}}" autocomplete="off"></label>
+      {{end}}
+      {{if eq .Kind "restore"}}
+      <label class="choice"><input type="checkbox" name="replace" value="1"> {{$.FieldReplace}}</label>
+      <label class="choice"><input type="checkbox" name="realm_ok" value="1"> {{$.FieldRealm}}</label>
+      {{end}}
+      {{if .Password}}
+      <label>{{$.FieldPass}} <input type="password" name="passphrase" autocomplete="off"></label>
+      {{if .Twice}}<label>{{$.FieldPass}} <input type="password" name="passphrase2" autocomplete="off"></label>{{end}}
+      {{end}}
+      <button type="submit">{{.Submit}}</button>
+    </form>
+    {{end}}
+  </main>
 </body>
 </html>

@@ -107,9 +107,9 @@ func route(current func() View, host string, actions *Actions) http.Handler {
 		header.Set("Referrer-Policy", "no-referrer")
 		header.Set("X-Content-Type-Options", "nosniff")
 		header.Set("X-Frame-Options", "DENY")
-		policy := "default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'"
+		policy := "default-src 'none'; style-src 'unsafe-inline'; font-src data:; base-uri 'none'; frame-ancestors 'none'; form-action 'none'"
 		if actions != nil && r.URL.Path != "/web/overview" && r.URL.Path != "/" && r.URL.Path != "/web" && r.URL.Path != "/web/" {
-			policy = "default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'"
+			policy = "default-src 'none'; style-src 'unsafe-inline'; font-src data:; base-uri 'none'; frame-ancestors 'none'; form-action 'self'"
 		}
 		header.Set("Content-Security-Policy", policy)
 
