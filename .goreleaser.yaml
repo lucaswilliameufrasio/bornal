@@ -1,0 +1,54 @@
+version: 2
+
+project_name: bornal
+
+builds:
+  - id: bornal
+    main: ./cmd/bornal
+    binary: bornal
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X github.com/lucaswilliameufrasio/bornal/internal/cli.Version={{ .Version }}
+    goos: [linux, darwin, windows]
+    goarch: [amd64, arm64]
+
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+    files:
+      - LICENSE
+      - README.md
+      - README.pt-BR.md
+      - CHANGELOG.md
+      - docs/releases.md
+
+checksum:
+  name_template: checksums.txt
+  algorithm: sha256
+
+source:
+  enabled: true
+  name_template: "{{ .ProjectName }}_{{ .Version }}_source"
+  format: tar.gz
+
+changelog:
+  disable: true
+
+release:
+  github:
+    owner: lucaswilliameufrasio
+    name: bornal
+  draft: false
+  header: |
+    Versão {{ .Tag }} do bornal.
+
+    Os arquivos incluem o binário para Linux, macOS e Windows (amd64 e arm64),
+    o código-fonte e `checksums.txt` com SHA-256. Os testes rodam em Linux;
+    macOS e Windows são builds cruzados. Esta versão lê a instalação local,
+    grava só a configuração da ferramenta e não escreve no cliente do jogo.

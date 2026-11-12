@@ -18,8 +18,8 @@ import (
 	"github.com/lucaswilliameufrasio/bornal/internal/setup"
 )
 
-// Version is the development slice. It is not a release.
-const Version = "0.1.0"
+// Version is the local build. A release build replaces it with the tag.
+var Version = "0.1.0"
 
 // search and searchRoots are replaced in tests so the suite never walks a disk.
 var (

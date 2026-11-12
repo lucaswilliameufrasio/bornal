@@ -1,4 +1,5 @@
-# Action SHAs checked on 2026-11-11 against tags v7.0.1 and v7.0.0.
+# Action SHAs rechecked on 2026-11-11. checkout v7.0.1 and setup-go v7.0.0
+# are still the newest stable releases.
 name: CI
 
 on:
@@ -6,6 +7,7 @@ on:
     branches: [main]
   pull_request:
   workflow_dispatch:
+  workflow_call:
 
 permissions:
   contents: read
