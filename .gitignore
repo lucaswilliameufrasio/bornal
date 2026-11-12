@@ -1,0 +1,5 @@
+/bornal
+/dist/
+
+# Registros de tarefa locais. Não acompanham clone nem worktree.
+.agent-tasks/

@@ -1,0 +1,9 @@
+.PHONY: test
+
+test:
+	test -z "$$(gofmt -l .)"
+	go mod verify
+	go vet ./...
+	go test -count=1 ./...
+	go test -race -count=1 ./...
+	go build -o /tmp/bornal ./cmd/bornal
