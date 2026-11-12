@@ -42,6 +42,14 @@ func Parse(value string) (Language, bool) {
 	}
 }
 
+// Code is the value stored in the config file.
+func Code(lang Language) string {
+	if lang == Portuguese {
+		return "pt-BR"
+	}
+	return "en"
+}
+
 func text(lang Language, portuguese, english string) string {
 	if lang == Portuguese {
 		return portuguese
@@ -55,26 +63,34 @@ func Usage(lang Language) string {
 		`bornal — lê instalações locais do World of Warcraft
 
 Uso:
+  bornal setup
   bornal doctor [--path DIR] [--lang pt-BR|en]
   bornal console [--path DIR] [--lang pt-BR|en]
+  bornal mcp [--lang pt-BR|en]
   bornal help
   bornal version
 
---lang ganha de LANG, LC_ALL e LC_MESSAGES.
-Sem --path, doctor e console usam BORNAL_WOW_PATH.
-Este corte só lê. Não varre outros discos.
+--lang ganha desta execução. O idioma salvo ganha de LANG, LC_ALL e LC_MESSAGES.
+O caminho segue --path, depois BORNAL_WOW_PATH, depois o config salvo.
+No terminal, doctor e console perguntam quando não há caminho.
+bornal mcp não pergunta neste fluxo. A ferramenta configuration devolve as perguntas.
+Este corte só lê.
 `,
 		`bornal — reads local World of Warcraft installations
 
 Usage:
+  bornal setup
   bornal doctor [--path DIR] [--lang pt-BR|en]
   bornal console [--path DIR] [--lang pt-BR|en]
+  bornal mcp [--lang pt-BR|en]
   bornal help
   bornal version
 
---lang wins over LANG, LC_ALL, and LC_MESSAGES.
-Without --path, doctor and console use BORNAL_WOW_PATH.
-This slice only reads. It does not scan other disks.
+--lang wins for this run. A saved language wins over LANG, LC_ALL, and LC_MESSAGES.
+The path follows --path, then BORNAL_WOW_PATH, then the saved config.
+On a terminal, doctor and console ask when no path is known.
+bornal mcp does not prompt on this stream. The configuration tool returns the questions.
+This slice only reads.
 `)
 }
 
@@ -88,11 +104,11 @@ func BadLang(lang Language, value string) string {
 	return text(lang, "--lang inválido: "+value, "invalid --lang: "+value)
 }
 
-// NeedPath is used when neither --path nor the environment variable is set.
+// NeedPath is used when no path is saved and this process has no terminal.
 func NeedPath(lang Language) string {
 	return text(lang,
-		"Nenhum caminho informado. Use --path ou BORNAL_WOW_PATH.",
-		"No path given. Use --path or BORNAL_WOW_PATH.")
+		"Nenhum caminho salvo. Rode bornal setup, ou use --path ou BORNAL_WOW_PATH.",
+		"No saved path. Run bornal setup, or pass --path or BORNAL_WOW_PATH.")
 }
 
 // NoneFound is used when the path contains no install.
@@ -152,4 +168,60 @@ func LabelLocale(lang Language) string {
 func LabelAgent(lang Language) string { return text(lang, "agentUID", "agentUID") }
 func LabelMissing(lang Language) string {
 	return text(lang, "ausente", "missing")
+}
+
+// LanguageQuestion is bilingual because the language is not chosen yet.
+func LanguageQuestion() string {
+	return "Idioma da interface / Interface language\n  1  pt-BR\n  2  English\n"
+}
+
+// InstallQuestion introduces the numbered installs.
+func InstallQuestion(lang Language) string {
+	return text(lang,
+		"Qual instalação do World of Warcraft?",
+		"Which World of Warcraft installation?")
+}
+
+// NoInstalls introduces a typed path when the search found nothing.
+func NoInstalls(lang Language) string {
+	return text(lang,
+		"Nenhuma instalação encontrada nesta busca.\nDigite o caminho da pasta do jogo.",
+		"No installation found in this search.\nType the path of the game folder.")
+}
+
+// OtherPath is the last numbered choice.
+func OtherPath(lang Language) string {
+	return text(lang, "outro caminho", "another path")
+}
+
+// TypePath asks for a path after "another path".
+func TypePath(lang Language) string {
+	return text(lang, "Digite o caminho da pasta do jogo.", "Type the path of the game folder.")
+}
+
+// InvalidChoice is printed before the question is repeated.
+func InvalidChoice(lang Language) string {
+	return text(lang, "Não entendi. Tente de novo.", "Did not understand. Try again.")
+}
+
+// NotAnInstall rejects a path without WTF/Config.wtf.
+func NotAnInstall(lang Language) string {
+	return text(lang,
+		"Esse caminho não tem uma instalação.",
+		"That path has no installation.")
+}
+
+// SavedConfig confirms the file was written.
+func SavedConfig(lang Language) string {
+	return text(lang, "Configuração salva.", "Configuration saved.")
+}
+
+// SetupFailed is a question that ended without an answer.
+func SetupFailed(lang Language) string {
+	return text(lang, "Configuração interrompida.", "Setup stopped.")
+}
+
+// ConfigFailed hides the filesystem error behind the config file.
+func ConfigFailed(lang Language) string {
+	return text(lang, "Não consegui gravar a configuração.", "Could not write the configuration.")
 }

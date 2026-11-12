@@ -2,7 +2,7 @@
 
 **Date:** 2026-11-11
 
-**Status:** Accepted
+**Status:** Accepted. ADR-004 supersedes the required `--path` and the ban on a volume walk, and only for the first-run question.
 
 **Evidence:** Macros, kits, and restore were designed. An armory was declined. Writing `macros-cache.txt` while `Wow.exe` is open is overwritten on exit.
 

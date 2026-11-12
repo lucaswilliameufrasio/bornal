@@ -1,6 +1,7 @@
 # bornal
 
-Cliente local de instalações do World of Warcraft. O primeiro corte só lê.
+Cliente local de instalações do World of Warcraft. Este corte lê o cliente e
+grava só a configuração local: idioma da interface e caminho da instalação.
 Macro, kit e restore ainda não existem. Decisões em `docs/adr/`. A interface
 visual segue `docs/design-system.md`.
 

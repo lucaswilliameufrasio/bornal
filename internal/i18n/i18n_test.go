@@ -37,4 +37,7 @@ func TestParse(t *testing.T) {
 	if _, ok = Parse("de"); ok {
 		t.Fatal("de foi aceito")
 	}
+	if Code(Portuguese) != "pt-BR" || Code(English) != "en" {
+		t.Fatalf("códigos %s %s", Code(Portuguese), Code(English))
+	}
 }
