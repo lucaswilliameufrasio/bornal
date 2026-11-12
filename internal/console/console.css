@@ -1,0 +1,107 @@
+/* Tokens. Values and their sources are recorded in docs/design-system.md. */
+:root {
+  color-scheme: light;
+  --color-bg: #edf3f8;
+  --color-surface: #fff;
+  --color-line: #cbd9e6;
+  --color-rule: #93afc7;
+  --color-text: #18304d;
+  --color-muted: #50647a;
+  --color-link: #1757a6;
+  --color-rail: #163353;
+  --color-rail-text: #d8e7f3;
+  --color-rail-muted: #c4d8eb;
+  --color-rail-current: #e9f3ff;
+  --color-notice-bg: #fff4e9;
+  --color-focus: #c27400;
+  --font-body: "Trebuchet MS", Verdana, sans-serif;
+  --font-mono: ui-monospace, "Cascadia Mono", "DejaVu Sans Mono", "Noto Sans Mono", monospace;
+  --size-h1: clamp(2rem, 4vw, 3.1rem);
+  --rail-width: 240px;
+  --target-min: 44px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+a:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 2px; }
+
+.shell { display: flex; min-height: 100vh; }
+
+.rail {
+  width: var(--rail-width);
+  flex: none;
+  background: var(--color-rail);
+  color: var(--color-rail-text);
+  padding: 30px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+}
+
+.brand {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 1.25rem;
+}
+
+.brand small {
+  display: block;
+  margin-top: 4px;
+  color: var(--color-rail-muted);
+  font-family: var(--font-body);
+  font-size: .85rem;
+}
+
+.rail a {
+  display: flex;
+  align-items: center;
+  min-height: var(--target-min);
+  padding: 0 12px;
+  border-radius: 5px;
+  background: var(--color-rail-current);
+  color: var(--color-text);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.mode { margin-top: auto; color: var(--color-rail-muted); font-size: .85rem; }
+
+.main { flex: 1; padding: 42px clamp(20px, 5vw, 74px); }
+
+h1 {
+  margin: 0 0 34px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid var(--color-rule);
+  font-size: var(--size-h1);
+  line-height: 1.1;
+  letter-spacing: -0.04em;
+}
+
+.note, .card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: 7px;
+  padding: clamp(18px, 3vw, 28px);
+}
+
+.note { background: var(--color-notice-bg); margin-bottom: 28px; }
+
+.card + .card { margin-top: 28px; }
+
+dt { color: var(--color-muted); font-size: .85rem; }
+dd { margin: 0 0 12px; font-family: var(--font-mono); overflow-wrap: anywhere; }
+
+@media (max-width: 760px) {
+  .shell { display: block; }
+  .rail { width: auto; gap: 16px; }
+  .mode { margin-top: 0; }
+}
