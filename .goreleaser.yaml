@@ -29,8 +29,12 @@ archives:
       - docs/releases.md
 
 checksum:
-  name_template: checksums.txt
+  name_template: "{{ .ArtifactName }}.sha256"
   algorithm: sha256
+  split: true
+  extra_files:
+    - glob: ./scripts/bornal-installer.sh
+    - glob: ./scripts/bornal-installer.ps1
 
 source:
   enabled: true
@@ -38,17 +42,46 @@ source:
   format: tar.gz
 
 changelog:
-  disable: true
+  use: git
+  sort: asc
+  filters:
+    exclude:
+      - '(?i)^merge '
+      - '(?i)^chore\(release\):'
+  groups:
+    - title: Features
+      regexp: '^.*?feat(\([[:word:]]+\))??!?:.+$'
+      order: 0
+    - title: Bug fixes
+      regexp: '^.*?fix(\([[:word:]]+\))??!?:.+$'
+      order: 1
+    - title: Other changes
+      order: 999
 
 release:
   github:
     owner: lucaswilliameufrasio
     name: bornal
   draft: false
+  extra_files:
+    - glob: ./scripts/bornal-installer.sh
+    - glob: ./scripts/bornal-installer.ps1
   header: |
-    Versão {{ .Tag }} do bornal.
+    ## Instalação
 
-    Os arquivos incluem o binário para Linux, macOS e Windows (amd64 e arm64),
-    o código-fonte e `checksums.txt` com SHA-256. Os testes rodam em Linux;
-    macOS e Windows são builds cruzados. Esta versão lê a instalação local,
-    grava só a configuração da ferramenta e não escreve no cliente do jogo.
+    ### Linux e macOS
+
+    ```sh
+    curl -fsSL https://github.com/lucaswilliameufrasio/bornal/releases/download/{{ .Tag }}/bornal-installer.sh | sh -s -- --tag {{ .Tag }}
+    ```
+
+    ### Windows PowerShell
+
+    ```powershell
+    Invoke-WebRequest https://github.com/lucaswilliameufrasio/bornal/releases/download/{{ .Tag }}/bornal-installer.ps1 -OutFile bornal-installer.ps1
+    .\bornal-installer.ps1 -Tag {{ .Tag }}
+    ```
+
+    O instalador confere o SHA-256 de cada arquivo antes de instalar. Isso
+    protege contra corrupção no download, não contra uma release comprometida.
+    Os testes rodam em Linux. macOS e Windows são builds cruzados.
