@@ -23,7 +23,7 @@ Conceito: um painel preto em que o número é o dado. O flavor e o estado do jog
 1. O dado manda. O título da visão geral, com uma instalação, é o flavor, então a página nunca abre com um slogan.
 2. Uma cor de acento marca a página atual, então o índigo não pinta fundo nem botão.
 3. Cor não substitui a palavra. O ponto verde só acompanha "não" quando aquele jogo está fechado, então jogo aberto e jogo não verificado não ganham ponto.
-4. A página não inventa métrica. Com várias instalações, a célula de jogo aberto nomeia o flavor que foi lido, então não parece que todas foram checadas.
+4. A página não inventa métrica. Com várias instalações, cada faixa mostra o estado do jogo daquela instalação. Uma leitura que faltou fica não verificada, e o estado de uma não passa para as outras.
 5. A prévia não grava. A visão geral não tem formulário, então o token de um lado não aparece como botão de escrita.
 
 ## 4. Tokens
@@ -76,12 +76,12 @@ Não há conjunto de ícones. O único sinal gráfico é o ponto de 8px, com `ar
 
 ## 6. Voz
 
-Português do Brasil ou inglês, pela regra de `internal/i18n`. Chave de formulário e de manifesto fica em inglês. A linha da macro mostra a ação que o núcleo já devolve: `create`, `skip` ou `replace`. O nome de habilidade vem do `textLocale` do cliente. O mesmo fato usa a mesma palavra: prévia, token, gravar, kit, jogo aberto. Sem urgência fabricada e sem texto que culpe a pessoa por não gravar.
+Português do Brasil ou inglês, pela regra de `internal/i18n`. Chave de formulário e de manifesto fica em inglês. No terminal e no console, a ação da macro sai no idioma da interface: criar, substituir, igual e conflito, ou create, replace, skip e conflict. O campo do MCP continua `create`, `replace`, `skip` ou `conflict`. O nome de habilidade vem do `textLocale` do cliente. O mesmo fato usa a mesma palavra: prévia, token, gravar, kit, jogo aberto. Sem urgência fabricada e sem texto que culpe a pessoa por não gravar.
 
 ## 7. Componentes
 
 - Navegação: cinco links, alvo 44px. A página atual tem texto `#ededed` e sublinhado índigo. As outras ficam em `#a1a1a1` e passam a `#ededed` no hover. Foco: 2px `#cdddff`, offset 3px.
-- Métrica: rótulo mudo e valor em 28px. Três células na visão geral de uma instalação. Uma célula, na largura do conteúdo até 320px, quando não há flavor como título.
+- Métrica: rótulo mudo e valor em 28px. Três células na visão geral de uma instalação. Uma célula, na largura do conteúdo até 320px, quando não há instalação. Com várias, cada faixa traz o próprio estado do jogo.
 - Passo: índice mono `#cdddff`, título, detalhe mudo. Só na visão geral.
 - Lista: nome e detalhe, fio entre itens. Link, quando existe, usa `#cdddff`.
 - Formulário: rótulo mudo, campo com borda `#5c5c5c`, hover na borda `#888`, senha com `autocomplete="off"`. A caixa de seleção tem alvo na linha de 44px e `accent-color` índigo. O botão é texto preto em fundo `#ededed`, alvo 44px. Não há estado de carregamento: a resposta troca a página.
@@ -89,7 +89,7 @@ Português do Brasil ou inglês, pela regra de `internal/i18n`. Chave de formul�
 
 ## 8. Páginas
 
-A visão geral com uma instalação mostra o kicker "instalações locais", o flavor como `h1`, o caminho, três métricas e a faixa "Para gravar". Com nenhuma ou com várias, o `h1` é "Instalações". Várias instalações repetem cada flavor numa faixa, e a célula de jogo aberto leva o flavor lido. Macros, addons, kits e rollback usam a barra e o painel, sem kicker e sem a faixa de passos. A visão geral não tem `POST`.
+A visão geral com uma instalação mostra o kicker "instalações locais", o flavor como `h1`, o caminho, três métricas e a faixa "Para gravar". Com nenhuma ou com várias, o `h1` é "Instalações". Sem instalação, uma célula diz que o jogo não foi verificado. Várias instalações repetem cada flavor numa faixa, com o estado do jogo daquela instalação. Uma leitura que faltou fica não verificada naquela faixa. Macros, addons, kits e rollback usam a barra e o painel, sem kicker e sem a faixa de passos. A visão geral não tem `POST`.
 
 ## 9. Engajamento
 
@@ -104,7 +104,7 @@ Web local, desktop e largura de telefone. Não há app nativo nem TUI desta pág
 1. MUST usar só os tokens deste arquivo para cor, tipo e alvo.
 2. MUST manter o índigo fora de texto pequeno e de fundo de botão.
 3. MUST mostrar a palavra do estado do jogo. O ponto verde só entra com o jogo fechado.
-4. MUST nomear o flavor lido quando a visão geral lista mais de uma instalação.
+4. MUST mostrar, em cada instalação listada, o estado do jogo daquela instalação. Uma leitura ausente fica não verificada, e o estado de uma instalação não vale para as outras.
 5. MUST NOT colocar formulário na visão geral.
 6. MUST NOT inventar número, jogador, notícia ou textura do cliente.
 7. MUST NOT buscar fonte em CDN. A fonte entra como data URI, com a licença OFL no repositório.
@@ -148,3 +148,4 @@ Web local, desktop e largura de telefone. Não há app nativo nem TUI desta pág
 | --- | --- | --- |
 | 2026-11-11 | Console com os tokens do git-mcp | Corte anterior |
 | 2026-11-12 | Painel preto, Geist, índigo só na página atual | ADR-006 |
+| 2026-11-14 | Cada instalação mostra o próprio jogo aberto. A ação visível segue o idioma da interface; o campo do MCP fica em inglês | Corte de exibição |

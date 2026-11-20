@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 
+	panel "github.com/lucaswilliameufrasio/bornal/internal/console"
 	"github.com/lucaswilliameufrasio/bornal/internal/i18n"
 	"github.com/lucaswilliameufrasio/bornal/internal/localconsole"
 	"github.com/lucaswilliameufrasio/bornal/internal/running"
@@ -99,6 +100,66 @@ func TestMacrosPreviewAndApply(t *testing.T) {
 	if code != 0 || confirmToken(out) != "" {
 		t.Fatalf("segunda prévia %d %s %s", code, out, errText)
 	}
+}
+
+func TestPreviewWordsFollowTheInterface(t *testing.T) {
+	root := t.TempDir()
+	writeAccount(t, root, "enUS", "")
+	getenv := stateEnv(t)
+	code, out, errText := runCLI([]string{"macros", "preview", "--path", root, "--lang", "pt-BR"}, "", getenv, false)
+	if code != 0 {
+		t.Fatalf("code %d %s", code, errText)
+	}
+	if !strings.Contains(out, "Rend  criar") || strings.Contains(out, " create") {
+		t.Fatalf("prévia: %s", out)
+	}
+	page, err := macrosPage(root, i18n.Portuguese, getenv, "", 1, false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if detail := rowDetail(page.Rows, "Rend"); detail != "criar" {
+		t.Fatalf("console Rend = %q", detail)
+	}
+	for _, row := range page.Rows {
+		if row.Detail == "create" || row.Detail == "replace" || row.Detail == "skip" || row.Detail == "conflict" {
+			t.Fatalf("ação crua no console: %+v", row)
+		}
+	}
+	enPage, err := macrosPage(root, i18n.English, getenv, "", 1, false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if detail := rowDetail(enPage.Rows, "Rend"); detail != "create" {
+		t.Fatalf("console en Rend = %q", detail)
+	}
+
+	conflictRoot := t.TempDir()
+	writeAccount(t, conflictRoot, "enUS", "VER 3\r\n0000000000000002 \"Rend\" \"1\"\r\n/wave\r\nEND\r\n")
+	page, err = macrosPage(conflictRoot, i18n.Portuguese, getenv, "", 1, false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if detail := rowDetail(page.Rows, "Rend"); detail != "conflito" {
+		t.Fatalf("conflito = %q", detail)
+	}
+	var link string
+	for _, row := range page.Rows {
+		if row.Href != "" {
+			link = row.Name
+		}
+	}
+	if link != "Substituir" {
+		t.Fatalf("link = %q", link)
+	}
+}
+
+func rowDetail(rows []panel.Row, name string) string {
+	for _, row := range rows {
+		if row.Name == name {
+			return row.Detail
+		}
+	}
+	return ""
 }
 
 func TestMacroConflictAndOtherLocaleDoNotWrite(t *testing.T) {

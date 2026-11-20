@@ -41,3 +41,27 @@ func TestParse(t *testing.T) {
 		t.Fatalf("códigos %s %s", Code(Portuguese), Code(English))
 	}
 }
+
+func TestMacroAction(t *testing.T) {
+	if got := MacroAction(Portuguese, "create"); got != "criar" {
+		t.Fatalf("pt create = %q", got)
+	}
+	if got := MacroAction(Portuguese, "replace"); got != "substituir" {
+		t.Fatalf("pt replace = %q", got)
+	}
+	if got := MacroAction(Portuguese, "skip"); got != "igual" {
+		t.Fatalf("pt skip = %q", got)
+	}
+	if got := MacroAction(English, "skip"); got != "skip" {
+		t.Fatalf("en skip = %q", got)
+	}
+	if got := MacroAction(Portuguese, "conflict"); got != "conflito" {
+		t.Fatalf("pt conflict = %q", got)
+	}
+	if got := MacroAction(English, "conflict"); got != "conflict" {
+		t.Fatalf("en conflict = %q", got)
+	}
+	if got := MacroAction(Portuguese, "mystery"); got != "mystery" {
+		t.Fatalf("unknown = %q", got)
+	}
+}

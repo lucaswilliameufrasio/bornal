@@ -99,7 +99,7 @@ func macrosPage(root string, lang i18n.Language, getenv func(string) string, fla
 	}
 	page.Message = strings.Join(notes, " ")
 	for _, item := range view.Items {
-		page.Rows = append(page.Rows, panel.Row{Name: item.Name, Detail: string(item.Action)})
+		page.Rows = append(page.Rows, panel.Row{Name: item.Name, Detail: i18n.MacroAction(lang, string(item.Action))})
 	}
 	if view.Conflict && view.LocaleOK {
 		q := url.Values{}
@@ -112,7 +112,7 @@ func macrosPage(root string, lang i18n.Language, getenv func(string) string, fla
 		}
 		q.Set("account", strconv.Itoa(n))
 		q.Set("replace", "1")
-		page.Rows = append(page.Rows, panel.Row{Name: "replace", Href: hrefQuery("/web/macros", q)})
+		page.Rows = append(page.Rows, panel.Row{Name: i18n.FieldReplace(lang), Href: hrefQuery("/web/macros", q)})
 	}
 	if view.Confirm != "" {
 		n := account

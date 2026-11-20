@@ -26,7 +26,7 @@ bornal macros apply --confirm TOKEN
 bornal rollback [--confirm TOKEN]
 ```
 
-`preview` lista cada macro como create, replace, skip ou conflict. `apply` grava com o token daquela prévia. A CLI, o servidor MCP e o console não aceitam o token um do outro. O mesmo nome com outro texto espera `--replace`. As outras macros ficam, com os ids delas. O backup ao lado do arquivo é `macros-cache.bornal-bak`. `rollback` restaura esse backup, também com o jogo fechado.
+`preview` nomeia cada macro planejada no idioma da interface. Em português: criar, substituir, igual ou conflito. Em inglês: create, replace, skip ou conflict. O campo do MCP continua `create`, `replace`, `skip` ou `conflict`. `apply` grava com o token daquela prévia. A CLI, o servidor MCP e o console não aceitam o token um do outro. O mesmo nome com outro texto espera `--replace`. As outras macros ficam, com os ids delas. O backup ao lado do arquivo é `macros-cache.bornal-bak`. `rollback` restaura esse backup, também com o jogo fechado.
 
 Um caminho do Windows na linha de comando do Wine conta como a mesma instalação. Se a checagem do processo não roda, a gravação é recusada.
 
@@ -62,7 +62,7 @@ bornal console
 
 `bornal mcp` fala MCP em stdin e stdout. Não pergunta nesse fluxo. `configuration` devolve as perguntas pendentes, e `save_configuration` grava as respostas. As ferramentas do jogo são `macros_preview`, `macros_apply`, `addons_list`, `kit_create`, `kit_find`, `kit_verify`, `kit_restore` e `rollback`. Nenhuma recebe senha. Quando a cifra precisa de um prompt, use `bornal console`.
 
-`bornal console` escuta em `127.0.0.1` e imprime a URL. Ctrl+C encerra. A página mostra a instalação, a prévia das macros, a auditoria dos addons, os kits e o rollback. A visão geral só responde GET vindo do loopback. As outras páginas aceitam POST da mesma origem. A senha é um campo do formulário, não um parâmetro da URL.
+`bornal console` escuta em `127.0.0.1` e imprime a URL. Ctrl+C encerra. A página mostra cada instalação e se o jogo daquela instalação está aberto, a prévia das macros, a auditoria dos addons, os kits e o rollback. A visão geral só responde GET vindo do loopback. As outras páginas aceitam POST da mesma origem. A senha é um campo do formulário, não um parâmetro da URL.
 
 ## Fora desta versão
 

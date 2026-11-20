@@ -189,9 +189,9 @@ func console(args []string, in io.Reader, stdout, stderr io.Writer, lang i18n.La
 			empty = message
 			found = nil
 		}
-		running := ""
-		if len(found) > 0 {
-			running = runningLine(lang, found[0].Path)
+		running := make([]string, 0, len(found))
+		for _, one := range found {
+			running = append(running, runningLine(lang, one.Path))
 		}
 		return localconsole.View{Language: lang, Installs: found, Empty: empty, Running: running}
 	}, actions, func(serveErr error) {

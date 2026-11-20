@@ -326,6 +326,22 @@ func NeedFlavor(lang Language) string {
 	return text(lang, "Escolha o flavor com --flavor.", "Choose the flavor with --flavor.")
 }
 
+// MacroAction is the preview word for one planned change. The MCP field stays the English token.
+func MacroAction(lang Language, action string) string {
+	switch action {
+	case "create":
+		return text(lang, "criar", "create")
+	case "replace":
+		return text(lang, "substituir", "replace")
+	case "skip":
+		return text(lang, "igual", "skip")
+	case "conflict":
+		return text(lang, "conflito", "conflict")
+	default:
+		return action
+	}
+}
+
 // MacroLocale refuses the English set on another client locale.
 func MacroLocale(lang Language) string {
 	return text(lang,

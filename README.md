@@ -26,7 +26,7 @@ bornal macros apply --confirm TOKEN
 bornal rollback [--confirm TOKEN]
 ```
 
-`preview` lists each macro as create, replace, skip, or conflict. `apply` writes with the token from that preview. The CLI, the MCP server, and the console do not accept each other's tokens. A macro with the same name and a different body waits for `--replace`. Every other macro stays, including its id. The backup beside the file is `macros-cache.bornal-bak`. `rollback` restores that backup, again with the game closed.
+`preview` names each planned macro in the interface language. English uses create, replace, skip, or conflict. Brazilian Portuguese uses criar, substituir, igual, or conflito. The MCP field stays `create`, `replace`, `skip`, or `conflict`. `apply` writes with the token from that preview. The CLI, the MCP server, and the console do not accept each other's tokens. A macro with the same name and a different body waits for `--replace`. Every other macro stays, including its id. The backup beside the file is `macros-cache.bornal-bak`. `rollback` restores that backup, again with the game closed.
 
 A Windows path inside a Wine command line counts as the same install. If the process check cannot run, the write is refused.
 
@@ -62,7 +62,7 @@ bornal console
 
 `bornal mcp` speaks MCP on stdin and stdout. It does not prompt on that stream. `configuration` returns the pending questions, and `save_configuration` stores the answers. The game tools are `macros_preview`, `macros_apply`, `addons_list`, `kit_create`, `kit_find`, `kit_verify`, `kit_restore`, and `rollback`. None of them take a passphrase. When encryption needs a prompt, use `bornal console`.
 
-`bornal console` listens on `127.0.0.1` and prints the URL. Ctrl+C closes it. The page shows the install, the macro preview, the addon audit, the kits, and the rollback. The overview answers GET from loopback only. The other pages accept a same-origin POST. The passphrase is a form field, not a query parameter.
+`bornal console` listens on `127.0.0.1` and prints the URL. Ctrl+C closes it. The page shows each install and whether that install's game is open, the macro preview, the addon audit, the kits, and the rollback. The overview answers GET from loopback only. The other pages accept a same-origin POST. The passphrase is a form field, not a query parameter.
 
 ## Not in this version
 

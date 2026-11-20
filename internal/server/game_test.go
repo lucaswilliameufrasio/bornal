@@ -90,6 +90,13 @@ func TestMacrosApplyAndAddonList(t *testing.T) {
 	if view.Confirm == "" || view.LocaleOK == nil || !*view.LocaleOK {
 		t.Fatalf("prévia %+v", view)
 	}
+	raw, err := json.Marshal(preview.StructuredContent)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(raw), `"action":"create"`) || strings.Contains(string(raw), "criar") {
+		t.Fatalf("ação do mcp: %s", raw)
+	}
 	applied := callRaw(t, deps, "macros_apply", map[string]any{"confirm": view.Confirm})
 	if applied.IsError {
 		t.Fatal(textOf(applied))

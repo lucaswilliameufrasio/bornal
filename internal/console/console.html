@@ -15,8 +15,8 @@
     <p class="mode">{{.Mode}}</p>
   </header>
   <main>
-    {{if and .ShowFlow (eq (len .Installs) 1)}}
-    {{with index .Installs 0}}
+    {{if and .ShowFlow (eq (len .Shown) 1)}}
+    {{with index .Shown 0}}
     <p class="kicker">{{$.Subtitle}}</p>
     <h1>{{.Flavor}}</h1>
     <p class="path">{{.Path}}</p>
@@ -38,7 +38,7 @@
     {{else}}
     {{if .ShowFlow}}<p class="kicker">{{.Subtitle}}</p>{{end}}
     <h1>{{.Heading}}</h1>
-    {{if and .ShowFlow .GameValue}}
+    {{if and .ShowFlow (eq (len .Shown) 0) .GameValue}}
     <section class="metrics one">
       <article>
         <p>{{.GameLabel}}</p>
@@ -46,13 +46,14 @@
       </article>
     </section>
     {{end}}
-    {{range .Installs}}
+    {{range .Shown}}
     <article class="panel">
       <h2>{{.Flavor}}</h2>
       <p class="path">{{.Path}}</p>
       <dl>
         <dt>{{$.LabelLocale}}</dt><dd>{{if .Locale}}{{.Locale}}{{else}}{{$.Missing}}{{end}}</dd>
         <dt>{{$.LabelAgent}}</dt><dd>{{if .AgentUID}}{{.AgentUID}}{{else}}{{$.Missing}}{{end}}</dd>
+        <dt>{{.GameLabel}}</dt><dd class="safe">{{if .GameSafe}}<i class="dot" aria-hidden="true"></i>{{end}}{{.GameValue}}</dd>
       </dl>
     </article>
     {{end}}

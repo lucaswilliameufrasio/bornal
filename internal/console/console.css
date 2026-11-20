@@ -213,6 +213,12 @@ dd {
   overflow-wrap: anywhere;
 }
 
+dd.safe {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 label {
   display: flex;
   flex-direction: column;

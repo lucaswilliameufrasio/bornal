@@ -169,7 +169,7 @@ func macrosCommand(args []string, in io.Reader, stdout, stderr io.Writer, lang i
 		if err != nil {
 			return printChoice(stdout, stderr, lang, view, err)
 		}
-		printItems(stdout, view)
+		printItems(stdout, lang, view)
 		if !view.LocaleOK {
 			fmt.Fprintln(stdout, i18n.MacroLocale(lang))
 		}
@@ -456,9 +456,9 @@ func rootFrom(opt options, in io.Reader, stderr io.Writer, lang i18n.Language, l
 	return path, next, code
 }
 
-func printItems(stdout io.Writer, view work.MacroView) {
+func printItems(stdout io.Writer, lang i18n.Language, view work.MacroView) {
 	for _, item := range view.Items {
-		fmt.Fprintf(stdout, "%s  %s\n", item.Name, item.Action)
+		fmt.Fprintf(stdout, "%s  %s\n", item.Name, i18n.MacroAction(lang, string(item.Action)))
 	}
 }
 

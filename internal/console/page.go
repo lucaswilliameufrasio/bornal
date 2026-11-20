@@ -51,6 +51,17 @@ type Step struct {
 	Detail string
 }
 
+// Shown is one install on the overview, with that install's own game state.
+type Shown struct {
+	Path      string
+	Flavor    string
+	Locale    string
+	AgentUID  string
+	GameLabel string
+	GameValue string
+	GameSafe  bool
+}
+
 // Page is one console render.
 type Page struct {
 	HTMLLang     string
@@ -80,22 +91,19 @@ type Page struct {
 	ShowFlow     bool
 	FlowTitle    string
 	Steps        []Step
-	Installs     []install.Install
+	Shown        []Shown
 	Links        []Link
 	Rows         []Row
 	Forms        []Form
 	CSS          template.CSS
 }
 
-// NewPage fills the overview. running is the game-open line.
-func NewPage(lang i18n.Language, installs []install.Install, empty, running string) Page {
+// NewPage fills the overview. running[i] is the game-open line for installs[i].
+// A missing line is unchecked. One line is never copied onto another install.
+func NewPage(lang i18n.Language, installs []install.Install, empty string, running []string) Page {
 	page := basePage(lang, i18n.NavInstalls(lang), "/web/overview")
-	if running == "" {
-		running = i18n.RunningUnchecked(lang)
-	}
 	page.Note = i18n.LocaleNote(lang)
 	page.Empty = empty
-	page.Installs = installs
 	page.ShowFlow = true
 	page.FlowTitle = i18n.FlowTitle(lang)
 	page.Steps = []Step{
@@ -103,23 +111,50 @@ func NewPage(lang i18n.Language, installs []install.Install, empty, running stri
 		{Index: "02", Title: i18n.FlowToken(lang), Detail: i18n.FlowTokenDetail(lang)},
 		{Index: "03", Title: i18n.FlowWrite(lang), Detail: i18n.FlowWriteDetail(lang)},
 	}
-	page.GameLabel = i18n.RunningLabel(lang)
-	if len(installs) > 1 {
-		flavor := strings.TrimSpace(installs[0].Flavor)
-		if flavor != "" {
-			page.GameLabel = page.GameLabel + " · " + flavor
+	page.Shown = make([]Shown, 0, len(installs))
+	for i, one := range installs {
+		line := ""
+		if i < len(running) {
+			line = running[i]
 		}
+		page.Shown = append(page.Shown, shownFrom(lang, one, line))
 	}
-	switch running {
-	case i18n.RunningYes(lang):
-		page.GameValue = i18n.RunningStateYes(lang)
-	case i18n.RunningNo(lang):
-		page.GameValue = i18n.RunningStateNo(lang)
-		page.GameSafe = true
-	default:
-		page.GameValue = i18n.RunningStateUnchecked(lang)
+	if len(page.Shown) == 1 {
+		page.GameLabel = page.Shown[0].GameLabel
+		page.GameValue = page.Shown[0].GameValue
+		page.GameSafe = page.Shown[0].GameSafe
+	}
+	if len(page.Shown) == 0 {
+		value, safe := gameState(lang, "")
+		page.GameLabel = i18n.RunningLabel(lang)
+		page.GameValue = value
+		page.GameSafe = safe
 	}
 	return page
+}
+
+func shownFrom(lang i18n.Language, one install.Install, running string) Shown {
+	value, safe := gameState(lang, running)
+	return Shown{
+		Path:      one.Path,
+		Flavor:    one.Flavor,
+		Locale:    one.Locale,
+		AgentUID:  one.AgentUID,
+		GameLabel: i18n.RunningLabel(lang),
+		GameValue: value,
+		GameSafe:  safe,
+	}
+}
+
+func gameState(lang i18n.Language, running string) (string, bool) {
+	switch running {
+	case i18n.RunningYes(lang):
+		return i18n.RunningStateYes(lang), false
+	case i18n.RunningNo(lang):
+		return i18n.RunningStateNo(lang), true
+	default:
+		return i18n.RunningStateUnchecked(lang), false
+	}
 }
 
 // Section starts a page that is not the overview.

@@ -25,7 +25,7 @@ type View struct {
 	Language i18n.Language
 	Installs []install.Install
 	Empty    string
-	Running  string
+	Running  []string
 }
 
 // Form is one console POST. Passphrase is not written to the response or the log.
