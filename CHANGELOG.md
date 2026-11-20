@@ -3,6 +3,12 @@
 Mudanças do bornal. As entradas saem do histórico Git e são revisadas no
 pull request de release antes da tag.
 
+## [0.1.1] - 2026-11-20
+
+
+### Bug fixes
+- Show each install's own game state and localized macro actions
+
 ## [0.1.0] - 2026-11-12
 
 
